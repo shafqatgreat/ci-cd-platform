@@ -1,0 +1,16 @@
+# node
+node_modules/
+
+# env files
+.env
+
+# logs
+npm-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# railway cache
+.railway/tmp/
