@@ -9,7 +9,7 @@ export async function runPaymentPipeline() {
     const response = await fetch("https://backboard.railway.app/graphql", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${RAILWAY_TOKEN}`,
+        Authorization: `${RAILWAY_TOKEN}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
