@@ -2,7 +2,6 @@ import { v4 as uuid } from "uuid";
 const payments = new Map();
 
 
-
 export const createPayment = (req, res) => {
   const { orderId, amount, method } = req.body;
 
