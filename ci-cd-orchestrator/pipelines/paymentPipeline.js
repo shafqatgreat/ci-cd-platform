@@ -1,5 +1,5 @@
 const RAILWAY_TOKEN = process.env.RAILWAY_TOKEN;
-const PAYMENT_SERVICE_ID = "<payment-service-id>"; // from Railway Dashboard
+const PAYMENT_SERVICE_ID = "cfbeca31-d2ae-475e-bd9d-42c42364d23d"; // from Railway Dashboard
 
 export async function runPaymentPipeline() {
   try {
