@@ -1,4 +1,4 @@
-# 🚀 CI/CD Platform (Railway-based POC)
+# CI/CD Platform (Railway Cloud POC)
 
 A **custom-built CI/CD platform Proof of Concept** designed to demonstrate how modern deployment systems (like GitHub Actions, Jenkins, or CircleCI) work internally — using **GitHub Webhooks + Railway Cloud + Node.js**.
 
@@ -42,7 +42,7 @@ GitHub Push
    ↓
 GitHub Webhook
    ↓
-CI/CD Orchestrator (Railway)
+CI/CD Orchestrator (Deployed on Railway Cloud)
    ↓
 Change Detection (payment-service/)
    ↓
@@ -262,5 +262,3 @@ This CI/CD platform is intentionally built **from scratch** to understand:
 If you understand this project — you understand CI/CD.
 
 ---
-
-🚀 Happy Building!
