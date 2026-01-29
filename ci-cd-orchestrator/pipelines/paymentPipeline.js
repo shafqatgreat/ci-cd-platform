@@ -1,43 +1,41 @@
 const RAILWAY_TOKEN = process.env.RAILWAY_TOKEN;
 const PAYMENT_SERVICE_ID = "cfbeca31-d2ae-475e-bd9d-42c42364d23d"; // from Railway Dashboard
+const ENVIRONMENT_ID = process.env.RAILWAY_ENVIRONMENT_ID;
+
+
 
 export async function runPaymentPipeline() {
   try {
-    console.log("Starting Payment Service pipeline...");
-
     const response = await fetch("https://backboard.railway.app/graphql/v2", {
       method: "POST",
       headers: {
-        // FIX 1: Ensure "Bearer " prefix is included
-        Authorization: `Bearer ${RAILWAY_TOKEN}`, 
+        Authorization: `Bearer ${RAILWAY_TOKEN}`,
         "Content-Type": "application/json",
       },
-// Change your query body to this:
-body: JSON.stringify({
-  query: `
-    mutation DeployService($id: ID!) {
-      serviceInstanceRedeploy(serviceId: $id)
-    }
-  `,
-  variables: { id: PAYMENT_SERVICE_ID },
-}),
+      body: JSON.stringify({
+        query: `
+          mutation DeployService($serviceId: ID!, $environmentId: String!) {
+            serviceInstanceRedeploy(serviceId: $serviceId, environmentId: $environmentId)
+          }
+        `,
+        variables: { 
+          serviceId: PAYMENT_SERVICE_ID,
+          environmentId: ENVIRONMENT_ID 
+        },
+      }),
     });
 
     const data = await response.json();
 
-    // FIX 2: Check for GraphQL-specific errors
     if (data.errors) {
       throw new Error(`Railway API Error: ${data.errors[0].message}`);
     }
 
-    console.log("Deploy response:", data.data);
     console.log("Payment Service deployment triggered successfully!");
   } catch (err) {
     console.error("Pipeline failed:", err.message);
   }
 }
-
-
 
 
 // export async function runPaymentPipeline() {
