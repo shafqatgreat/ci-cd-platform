@@ -3,9 +3,10 @@ const PAYMENT_SERVICE_ID = "cfbeca31-d2ae-475e-bd9d-42c42364d23d"; // from Railw
 const ENVIRONMENT_ID = process.env.RAILWAY_ENVIRONMENT_ID;
 
 
-
 export async function runPaymentPipeline() {
   try {
+    console.log("Starting Payment Service pipeline...");
+
     const response = await fetch("https://backboard.railway.app/graphql/v2", {
       method: "POST",
       headers: {
@@ -36,7 +37,6 @@ export async function runPaymentPipeline() {
     console.error("Pipeline failed:", err.message);
   }
 }
-
 
 // export async function runPaymentPipeline() {
 //   try {
