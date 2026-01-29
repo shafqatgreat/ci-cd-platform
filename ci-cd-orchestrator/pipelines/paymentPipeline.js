@@ -6,10 +6,10 @@ export async function runPaymentPipeline() {
     console.log("Starting Payment Service pipeline...");
 
     console.log("Triggering Railway to deploy payment-service...");
-    const response = await fetch("https://backboard.railway.app/graphql", {
+    const response = await fetch("https://backboard.railway.app/graphql/v2", {
       method: "POST",
       headers: {
-        Authorization: `${RAILWAY_TOKEN}`,
+        Authorization: RAILWAY_TOKEN,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
