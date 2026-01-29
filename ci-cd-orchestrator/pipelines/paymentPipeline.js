@@ -12,16 +12,15 @@ export async function runPaymentPipeline() {
         Authorization: `Bearer ${RAILWAY_TOKEN}`, 
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        query: `
-          mutation DeployService($id: ID!) {
-            serviceInstanceRedeploy(serviceId: $id) {
-              id
-            }
-          }
-        `,
-        variables: { id: PAYMENT_SERVICE_ID },
-      }),
+// Change your query body to this:
+body: JSON.stringify({
+  query: `
+    mutation DeployService($id: ID!) {
+      serviceInstanceRedeploy(serviceId: $id)
+    }
+  `,
+  variables: { id: PAYMENT_SERVICE_ID },
+}),
     });
 
     const data = await response.json();
