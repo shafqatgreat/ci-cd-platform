@@ -1,4 +1,4 @@
-# CI/CD Platform (Railway Cloud POC)
+# Mavrick CI/CD Platform (Railway Cloud POC)
 
 A **custom-built CI/CD platform Proof of Concept** designed to demonstrate how modern deployment systems (like GitHub Actions, Jenkins, or CircleCI) work internally — using **GitHub Webhooks + Railway Cloud + Node.js**.
 
