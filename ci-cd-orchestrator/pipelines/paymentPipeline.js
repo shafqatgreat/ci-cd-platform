@@ -5,30 +5,70 @@ export async function runPaymentPipeline() {
   try {
     console.log("Starting Payment Service pipeline...");
 
-    console.log("Triggering Railway to deploy payment-service...");
     const response = await fetch("https://backboard.railway.app/graphql/v2", {
       method: "POST",
       headers: {
-        Authorization: RAILWAY_TOKEN,
+        // FIX 1: Ensure "Bearer " prefix is included
+        Authorization: `Bearer ${RAILWAY_TOKEN}`, 
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
         query: `
           mutation DeployService($id: ID!) {
-            deployService(serviceId: $id) { id status }
-          }`,
+            serviceInstanceRedeploy(serviceId: $id) {
+              id
+            }
+          }
+        `,
         variables: { id: PAYMENT_SERVICE_ID },
       }),
     });
 
     const data = await response.json();
-    console.log("Deploy response:", data);
 
+    // FIX 2: Check for GraphQL-specific errors
+    if (data.errors) {
+      throw new Error(`Railway API Error: ${data.errors[0].message}`);
+    }
+
+    console.log("Deploy response:", data.data);
     console.log("Payment Service deployment triggered successfully!");
   } catch (err) {
-    console.error("Pipeline failed:", err);
+    console.error("Pipeline failed:", err.message);
   }
 }
+
+
+
+
+// export async function runPaymentPipeline() {
+//   try {
+//     console.log("Starting Payment Service pipeline...");
+
+//     console.log("Triggering Railway to deploy payment-service...");
+//     const response = await fetch("https://backboard.railway.app/graphql/v2", {
+//       method: "POST",
+//       headers: {
+//         Authorization: RAILWAY_TOKEN,
+//         "Content-Type": "application/json",
+//       },
+//       body: JSON.stringify({
+//         query: `
+//           mutation DeployService($id: ID!) {
+//             deployService(serviceId: $id) { id status }
+//           }`,
+//         variables: { id: PAYMENT_SERVICE_ID },
+//       }),
+//     });
+
+//     const data = await response.json();
+//     console.log("Deploy response:", data);
+
+//     console.log("Payment Service deployment triggered successfully!");
+//   } catch (err) {
+//     console.error("Pipeline failed:", err);
+//   }
+// }
 
 
 
