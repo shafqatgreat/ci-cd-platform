@@ -2,7 +2,6 @@ const RAILWAY_TOKEN = process.env.RAILWAY_TOKEN;
 const PAYMENT_SERVICE_ID = "cfbeca31-d2ae-475e-bd9d-42c42364d23d"; // from Railway Dashboard
 const ENVIRONMENT_ID = process.env.RAILWAY_ENVIRONMENT_ID;
 
-
 export async function runPaymentPipeline() {
   try {
     console.log("Starting Payment Service pipeline...");
@@ -15,7 +14,7 @@ export async function runPaymentPipeline() {
       },
       body: JSON.stringify({
         query: `
-          mutation DeployService($serviceId: ID!, $environmentId: String!) {
+          mutation DeployService($serviceId: String!, $environmentId: String!) {
             serviceInstanceRedeploy(serviceId: $serviceId, environmentId: $environmentId)
           }
         `,
@@ -29,6 +28,7 @@ export async function runPaymentPipeline() {
     const data = await response.json();
 
     if (data.errors) {
+      // This will now catch any remaining permission or ID issues
       throw new Error(`Railway API Error: ${data.errors[0].message}`);
     }
 
@@ -37,6 +37,9 @@ export async function runPaymentPipeline() {
     console.error("Pipeline failed:", err.message);
   }
 }
+
+
+
 
 // export async function runPaymentPipeline() {
 //   try {
