@@ -1,6 +1,6 @@
-# Mavrick CI/CD Platform (Railway Cloud POC)
+# CI/CD Platform (Railway Cloud POC)
 
-A **custom-built CI/CD platform Proof of Concept** designed to demonstrate how modern deployment systems (like GitHub Actions, Jenkins, or CircleCI) work internally — using **GitHub Webhooks + Railway Cloud + Node.js**.
+A **custom-built CI/CD platform** designed to demonstrate how modern deployment systems (like GitHub Actions, Jenkins, or CircleCI) work internally — using **GitHub Webhooks + Railway Cloud + Node.js**.
 
 This project shows **how to deploy a service automatically without using Railway’s built‑in GitHub auto‑deploy**, giving you full control over build and deployment orchestration.
 
@@ -249,7 +249,7 @@ This is a **DevOps learning and demonstration platform**, ideal for:
 ## 👨‍💻 Author
 
 **Shafqat Altaf**  
-Backend Engineer | Microservices | DevOps | Cloud Architecture  
+Backend Engineer | Microservices | DevOps | Cloud Architecture  (CodingMavrick on YouTube)
 
 ---
 
