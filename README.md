@@ -249,7 +249,15 @@ This is a **DevOps learning and demonstration platform**, ideal for:
 ## 👨‍💻 Author
 
 **Shafqat Altaf**  
-Backend Engineer | Microservices | DevOps | Cloud Architecture  (CodingMavrick on YouTube)
+Backend Engineer | Microservices | DevOps | Cloud Architecture  
+
+---
+
+## 📺 YouTube
+
+**CodingMavrick**  
+Observability & Distributed Tracing in Node.js Microservices | OpenTelemetry 
+https://youtu.be/wyiem6fc47Q
 
 ---
 
