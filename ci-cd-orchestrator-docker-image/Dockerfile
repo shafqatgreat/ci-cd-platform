@@ -9,7 +9,14 @@ RUN npm install --omit=dev
 COPY ci-cd-orchestrator-docker-image/ .
 
 EXPOSE 8080
-CMD ["node", "index.js"]
+# CMD ["node", "index.js"]
+# FIX: Point to webhook-server.js instead of index.js
+CMD ["node", "webhook-server.js"]
+
+
+
+
+
 
 # FROM node:20-slim
 # WORKDIR /app
