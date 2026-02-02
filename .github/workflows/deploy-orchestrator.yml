@@ -9,7 +9,7 @@ on:
 env:
   REGISTRY: ghcr.io
   # Replace 'your-username' with your actual GitHub username
-  IMAGE_NAME: ${{ github.repository_owner }}/ci-cd-orchestrator
+  IMAGE_NAME: ${{ github.repository_owner }}/ci-cd-orchestrator-docker-image
 
 jobs:
   build-and-push:
