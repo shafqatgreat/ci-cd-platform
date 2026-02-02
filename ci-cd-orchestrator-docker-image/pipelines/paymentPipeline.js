@@ -4,12 +4,10 @@ const IMAGE_NAME = process.env.IMAGE_NAME || "ghcr.io/shafqatgreat/payment-servi
 
 export async function runPaymentPipeline() {
   // Use the 'dockerImage' field directly
-  const query = `
+const query = `
     mutation ServiceUpdate($id: String!, $image: String!) {
       serviceUpdate(id: $id, input: {
-        source: {
-          image: $image
-        }
+        sourceUrl: $image
       }) {
         id
         name
