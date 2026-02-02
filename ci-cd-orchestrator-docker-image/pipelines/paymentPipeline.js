@@ -3,7 +3,62 @@ const PAYMENT_SERVICE_ID = "cfbeca31-d2ae-475e-bd9d-42c42364d23d"; // from Railw
 const ENVIRONMENT_ID = process.env.RAILWAY_ENVIRONMENT_ID;
 const IMAGE_NAME = process.env.IMAGE_NAME;
 
+
 export async function runPaymentPipeline() {
+  // 1. CLEAN QUERY: No JavaScript comments allowed inside this string!
+  const query = `
+    mutation ServiceUpdate($id: String!, $image: String!) {
+      serviceUpdate(id: $id, input: {
+        image: $image
+      }) {
+        id
+        name
+      }
+    }
+  `;
+
+  try {
+    console.log(`🚀 Orchestrator: Updating ${PAYMENT_SERVICE_ID} to image ${IMAGE_NAME}...`);
+
+    const response = await fetch("https://backboard.railway.app/graphql/v2", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${process.env.RAILWAY_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        query: query.trim(),
+        variables: {
+          id: PAYMENT_SERVICE_ID,
+          image: IMAGE_NAME
+        },
+      }),
+    });
+
+    // 2. BETTER DEBUGGING: Catch HTML error pages from Railway
+    const contentType = response.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+      const rawBody = await response.text();
+      console.error("❌ Railway returned non-JSON response. Check your RAILWAY_TOKEN.");
+      throw new Error(`Railway API Error: ${response.status} ${response.statusText}`);
+    }
+
+    const result = await response.json();
+
+    if (result.errors) {
+      throw new Error(result.errors[0].message);
+    }
+
+    console.log("✅ Railway: Image update successful. Deployment triggered!");
+    return result.data.serviceUpdate;
+
+  } catch (err) {
+    console.error("❌ Orchestrator Pipeline Failed:", err.message);
+    throw err;
+  }
+}
+
+export async function runPaymentPipeline2() {
   const query = `
     mutation ServiceUpdate($id: String!, $image: String!) {
       serviceUpdate(id: $id, input: {
