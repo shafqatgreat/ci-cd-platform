@@ -1,0 +1,40 @@
+name: Build and Trigger Payment Deploy
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'payment-service/**' # Only run when payment code changes
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Payment Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./payment-service/Dockerfile 
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/payment-service:latest
+
+      # - name: 🚀 Notify Orchestrator
+      #   run: |
+      #     curl -X POST https://ci-cd-orchestrator-docker-image.up.railway.app/webhook \
+      #     -H "Content-Type: application/json" \
+      #     -H "X-Hub-Signature-256: sha256=NOT_REQUIRED_IF_YOU_DISABLE_SIG_FOR_THIS" \
+      #     -d '{"ref": "refs/heads/main", "repository": {"name": "payment-service"}}'
