@@ -2,7 +2,9 @@ const RAILWAY_TOKEN = process.env.RAILWAY_TOKEN;
 const PAYMENT_SERVICE_ID = "cfbeca31-d2ae-475e-bd9d-42c42364d23d"; // from Railway Dashboard
 const ENVIRONMENT_ID = process.env.RAILWAY_ENVIRONMENT_ID;
 const IMAGE_NAME = process.env.IMAGE_NAME;
-export async function runPaymentPipelineOld() {
+
+
+export async function runPaymentPipeline() {
   const query = `
     mutation ServiceUpdate($id: String!, $image: String!) {
       serviceUpdate(id: $id, input: {
