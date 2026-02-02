@@ -3,14 +3,11 @@ const PAYMENT_SERVICE_ID = "cfbeca31-d2ae-475e-bd9d-42c42364d23d"; // from Railw
 const ENVIRONMENT_ID = process.env.RAILWAY_ENVIRONMENT_ID;
 const IMAGE_NAME = process.env.IMAGE_NAME;
 
-
 export async function runPaymentPipeline() {
   const query = `
     mutation ServiceUpdate($id: String!, $image: String!) {
       serviceUpdate(id: $id, input: {
-        source: {
-          image: $image
-        }
+        image: $image  // <--- Move this out of "source"
       }) {
         id
         name
@@ -39,6 +36,7 @@ export async function runPaymentPipeline() {
     const result = await response.json();
 
     if (result.errors) {
+      // This will now catch schema or permission issues
       throw new Error(result.errors[0].message);
     }
 
@@ -50,6 +48,8 @@ export async function runPaymentPipeline() {
     throw err;
   }
 }
+
+
 // export async function runPaymentPipelineOld() {
 //   try {
 //     console.log("Starting Payment Service pipeline...");
