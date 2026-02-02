@@ -50,41 +50,41 @@ export async function runPaymentPipeline() {
     throw err;
   }
 }
-export async function runPaymentPipelineOld() {
-  try {
-    console.log("Starting Payment Service pipeline...");
+// export async function runPaymentPipelineOld() {
+//   try {
+//     console.log("Starting Payment Service pipeline...");
 
-    const response = await fetch("https://backboard.railway.app/graphql/v2", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${RAILWAY_TOKEN}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        query: `
-          mutation DeployService($serviceId: String!, $environmentId: String!) {
-            serviceInstanceRedeploy(serviceId: $serviceId, environmentId: $environmentId)
-          }
-        `,
-        variables: { 
-          serviceId: PAYMENT_SERVICE_ID,
-          environmentId: ENVIRONMENT_ID 
-        },
-      }),
-    });
+//     const response = await fetch("https://backboard.railway.app/graphql/v2", {
+//       method: "POST",
+//       headers: {
+//         Authorization: `Bearer ${RAILWAY_TOKEN}`,
+//         "Content-Type": "application/json",
+//       },
+//       body: JSON.stringify({
+//         query: `
+//           mutation DeployService($serviceId: String!, $environmentId: String!) {
+//             serviceInstanceRedeploy(serviceId: $serviceId, environmentId: $environmentId)
+//           }
+//         `,
+//         variables: { 
+//           serviceId: PAYMENT_SERVICE_ID,
+//           environmentId: ENVIRONMENT_ID 
+//         },
+//       }),
+//     });
 
-    const data = await response.json();
+//     const data = await response.json();
 
-    if (data.errors) {
-      // This will now catch any remaining permission or ID issues
-      throw new Error(`Railway API Error: ${data.errors[0].message}`);
-    }
+//     if (data.errors) {
+//       // This will now catch any remaining permission or ID issues
+//       throw new Error(`Railway API Error: ${data.errors[0].message}`);
+//     }
 
-    console.log("Payment Service deployment triggered successfully!");
-  } catch (err) {
-    console.error("Pipeline failed:", err.message);
-  }
-}
+//     console.log("Payment Service deployment triggered successfully!");
+//   } catch (err) {
+//     console.error("Pipeline failed:", err.message);
+//   }
+// }
 
 
 
