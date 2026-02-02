@@ -1,7 +1,20 @@
 FROM node:20-slim
 WORKDIR /app
-COPY package*.json ./
+
+# Copy from the root context into the container
+COPY ci-cd-orchestrator-docker-image/package*.json ./
 RUN npm install --omit=dev
-COPY . .
+
+# Copy the rest of the orchestrator code
+COPY ci-cd-orchestrator-docker-image/ .
+
 EXPOSE 8080
-CMD ["node", "server.js"]
+CMD ["node", "index.js"]
+
+# FROM node:20-slim
+# WORKDIR /app
+# COPY package*.json ./
+# RUN npm install --omit=dev
+# COPY . .
+# EXPOSE 8080
+# CMD ["node", "server.js"]
