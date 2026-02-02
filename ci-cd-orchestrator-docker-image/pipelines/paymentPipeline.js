@@ -15,6 +15,7 @@ export async function runPaymentPipeline() {
     }
   `.trim(); // .trim() removes any accidental newlines at the start/end;
 
+  
   try {
     console.log(`🚀 Orchestrator: Updating ${PAYMENT_SERVICE_ID} to image ${IMAGE_NAME}...`);
 
