@@ -1,8 +1,54 @@
 const RAILWAY_TOKEN = process.env.RAILWAY_TOKEN;
 const PAYMENT_SERVICE_ID = "cfbeca31-d2ae-475e-bd9d-42c42364d23d"; // from Railway Dashboard
 const ENVIRONMENT_ID = process.env.RAILWAY_ENVIRONMENT_ID;
+const IMAGE_NAME = process.env.IMAGE_NAME;
+export async function runPaymentPipelineOld() {
+  const query = `
+    mutation ServiceUpdate($id: String!, $image: String!) {
+      serviceUpdate(id: $id, input: {
+        source: {
+          image: $image
+        }
+      }) {
+        id
+        name
+      }
+    }
+  `;
 
-export async function runPaymentPipeline() {
+  try {
+    console.log(`🚀 Orchestrator: Updating ${PAYMENT_SERVICE_ID} to image ${IMAGE_NAME}...`);
+
+    const response = await fetch("https://backboard.railway.app/graphql/v2", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${process.env.RAILWAY_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        query,
+        variables: {
+          id: PAYMENT_SERVICE_ID,
+          image: IMAGE_NAME
+        },
+      }),
+    });
+
+    const result = await response.json();
+
+    if (result.errors) {
+      throw new Error(result.errors[0].message);
+    }
+
+    console.log("✅ Railway: Image update successful. Deployment triggered!");
+    return result.data.serviceUpdate;
+
+  } catch (err) {
+    console.error("❌ Orchestrator Pipeline Failed:", err.message);
+    throw err;
+  }
+}
+export async function runPaymentPipelineOld() {
   try {
     console.log("Starting Payment Service pipeline...");
 
