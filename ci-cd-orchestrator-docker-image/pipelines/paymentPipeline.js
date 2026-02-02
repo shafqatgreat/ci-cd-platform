@@ -3,17 +3,16 @@ const PAYMENT_SERVICE_ID = "cfbeca31-d2ae-475e-bd9d-42c42364d23d";
 const IMAGE_NAME = process.env.IMAGE_NAME || "ghcr.io/shafqatgreat/payment-service:latest";
 
 export async function runPaymentPipeline() {
-  // Use the 'dockerImage' field directly
-const query = `
-    mutation ServiceUpdate($id: String!, $image: String!) {
-      serviceUpdate(id: $id, input: {
-        sourceUrl: $image
-      }) {
-        id
-        name
-      }
+  const query = `
+    mutation ServiceInstanceUpdate($serviceId: String!, $image: String!) {
+      serviceInstanceUpdate(serviceId: $serviceId, input: {
+        source: {
+          image: $image
+        }
+      })
     }
   `;
+
   try {
     console.log(`🚀 Orchestrator: Updating ${PAYMENT_SERVICE_ID} to image ${IMAGE_NAME}...`);
 
@@ -26,7 +25,7 @@ const query = `
       body: JSON.stringify({
         query: query.trim(),
         variables: {
-          id: PAYMENT_SERVICE_ID,
+          serviceId: PAYMENT_SERVICE_ID, // Note: label changed to serviceId
           image: IMAGE_NAME
         },
       }),
@@ -38,15 +37,14 @@ const query = `
       throw new Error(result.errors[0].message);
     }
 
-    console.log("✅ Railway: Image update successful. Deployment triggered!");
-    return result.data.serviceUpdate;
+    console.log("✅ Railway: Instance update successful!");
+    return result.data.serviceInstanceUpdate;
 
   } catch (err) {
     console.error("❌ Orchestrator Pipeline Failed:", err.message);
     throw err;
   }
 }
-
 
 // const RAILWAY_TOKEN = process.env.RAILWAY_TOKEN;
 // const PAYMENT_SERVICE_ID = "cfbeca31-d2ae-475e-bd9d-42c42364d23d"; // from Railway Dashboard
