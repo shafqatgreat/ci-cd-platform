@@ -7,14 +7,15 @@ export async function runPaymentPipeline() {
   const query = `
     mutation ServiceUpdate($id: String!, $image: String!) {
       serviceUpdate(id: $id, input: {
-        dockerImage: $image
+        source: {
+          image: $image
+        }
       }) {
         id
         name
       }
     }
   `;
-
   try {
     console.log(`🚀 Orchestrator: Updating ${PAYMENT_SERVICE_ID} to image ${IMAGE_NAME}...`);
 
