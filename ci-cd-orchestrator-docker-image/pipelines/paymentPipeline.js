@@ -2,20 +2,19 @@ const RAILWAY_TOKEN = process.env.RAILWAY_TOKEN;
 const PAYMENT_SERVICE_ID = "cfbeca31-d2ae-475e-bd9d-42c42364d23d"; // from Railway Dashboard
 const ENVIRONMENT_ID = process.env.RAILWAY_ENVIRONMENT_ID;
 const IMAGE_NAME = process.env.IMAGE_NAME;
-
 export async function runPaymentPipeline() {
+  // 1. CLEAN QUERY: No JavaScript comments allowed inside this string!
   const query = `
     mutation ServiceUpdate($id: String!, $image: String!) {
       serviceUpdate(id: $id, input: {
-        image: $image  // <--- Move this out of "source"
+        image: $image
       }) {
         id
         name
       }
     }
-  `.trim(); // .trim() removes any accidental newlines at the start/end;
+  `;
 
-  
   try {
     console.log(`🚀 Orchestrator: Updating ${PAYMENT_SERVICE_ID} to image ${IMAGE_NAME}...`);
 
@@ -26,7 +25,7 @@ export async function runPaymentPipeline() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        query,
+        query: query.trim(),
         variables: {
           id: PAYMENT_SERVICE_ID,
           image: IMAGE_NAME
@@ -34,10 +33,17 @@ export async function runPaymentPipeline() {
       }),
     });
 
+    // 2. BETTER DEBUGGING: Catch HTML error pages from Railway
+    const contentType = response.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+      const rawBody = await response.text();
+      console.error("❌ Railway returned non-JSON response. Check your RAILWAY_TOKEN.");
+      throw new Error(`Railway API Error: ${response.status} ${response.statusText}`);
+    }
+
     const result = await response.json();
 
     if (result.errors) {
-      // This will now catch schema or permission issues
       throw new Error(result.errors[0].message);
     }
 
@@ -49,8 +55,6 @@ export async function runPaymentPipeline() {
     throw err;
   }
 }
-
-
 // export async function runPaymentPipelineOld() {
 //   try {
 //     console.log("Starting Payment Service pipeline...");
