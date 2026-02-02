@@ -1,9 +1,7 @@
 const RAILWAY_TOKEN = process.env.RAILWAY_TOKEN;
 const PAYMENT_SERVICE_ID = "cfbeca31-d2ae-475e-bd9d-42c42364d23d"; 
 const IMAGE_NAME = process.env.IMAGE_NAME || "ghcr.io/shafqatgreat/payment-service:latest";
-
 export async function runPaymentPipeline() {
-  // 1. The Configuration Update
   const updateMutation = `
     mutation ServiceInstanceUpdate($serviceId: String!, $image: String!) {
       serviceInstanceUpdate(serviceId: $serviceId, input: {
@@ -12,18 +10,17 @@ export async function runPaymentPipeline() {
     }
   `;
 
-  // 2. The Deployment Trigger
+  // The name Railway specifically asked for:
   const triggerMutation = `
-    mutation DeploymentTrigger($serviceId: String!) {
-      deploymentTrigger(input: { serviceId: $serviceId }) {
+    mutation DeploymentTriggerCreate($serviceId: String!) {
+      deploymentTriggerCreate(input: { serviceId: $serviceId }) {
         id
-        status
       }
     }
   `;
 
   try {
-    // --- Step 1: Update the Image Metadata ---
+    // 1. Update the metadata
     await fetch("https://backboard.railway.app/graphql/v2", {
       method: "POST",
       headers: {
@@ -36,9 +33,9 @@ export async function runPaymentPipeline() {
       }),
     });
 
-    console.log("✅ Image metadata updated. Now triggering deployment...");
+    console.log("✅ Image metadata updated. Now triggering deployment via deploymentTriggerCreate...");
 
-    // --- Step 2: Force Railway to start the container ---
+    // 2. Trigger the actual deployment
     const response = await fetch("https://backboard.railway.app/graphql/v2", {
       method: "POST",
       headers: {
@@ -54,15 +51,14 @@ export async function runPaymentPipeline() {
     const result = await response.json();
     if (result.errors) throw new Error(result.errors[0].message);
 
-    console.log("🚀 Railway: Deployment is now ACTIVE!");
-    return result.data.deploymentTrigger;
+    console.log("🚀 Railway: Deployment has been triggered successfully!");
+    return result.data.deploymentTriggerCreate;
 
   } catch (err) {
     console.error("❌ Orchestrator Pipeline Failed:", err.message);
     throw err;
   }
 }
-
 
 
 
