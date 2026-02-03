@@ -10,7 +10,7 @@ app.use(express.json());
 app.get("/health", (req, res) => {
   res.json({
     service: "payment-service",
-    status: "UP",
+    status: "UP Always",
     time: new Date().toISOString()
   });
 });
