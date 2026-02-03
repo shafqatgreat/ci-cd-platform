@@ -3,8 +3,10 @@ const PAYMENT_SERVICE_ID = "cfbeca31-d2ae-475e-bd9d-42c42364d23d";
 const IMAGE_NAME = process.env.IMAGE_NAME || "ghcr.io/shafqatgreat/payment-service:latest";
 
 
+export async function runPaymentPipeline(payload) {
+  // Capture the branch from the payload, default to 'main'
+  const branchName = payload.branch || "main";
 
-export async function runPaymentPipeline() {
   const updateMutation = `
     mutation ServiceInstanceUpdate($serviceId: String!, $image: String!) {
       serviceInstanceUpdate(serviceId: $serviceId, input: {
@@ -13,17 +15,20 @@ export async function runPaymentPipeline() {
     }
   `;
 
-  // The name Railway specifically asked for:
+  // Added the required 'branch' field here
   const triggerMutation = `
-    mutation DeploymentTriggerCreate($serviceId: String!) {
-      deploymentTriggerCreate(input: { serviceId: $serviceId }) {
+    mutation DeploymentTriggerCreate($serviceId: String!, $branch: String!) {
+      deploymentTriggerCreate(input: { 
+        serviceId: $serviceId, 
+        branch: $branch 
+      }) {
         id
       }
     }
   `;
 
   try {
-    // 1. Update the metadata
+    // 1. Update the metadata (Image URL)
     await fetch("https://backboard.railway.app/graphql/v2", {
       method: "POST",
       headers: {
@@ -36,9 +41,9 @@ export async function runPaymentPipeline() {
       }),
     });
 
-    console.log("✅ Image metadata updated. Now triggering deployment via deploymentTriggerCreate...");
+    console.log(`✅ Image metadata updated. Triggering deployment for branch: ${branchName}...`);
 
-    // 2. Trigger the actual deployment
+    // 2. Trigger the actual deployment with the branch
     const response = await fetch("https://backboard.railway.app/graphql/v2", {
       method: "POST",
       headers: {
@@ -47,7 +52,10 @@ export async function runPaymentPipeline() {
       },
       body: JSON.stringify({
         query: triggerMutation.trim(),
-        variables: { serviceId: PAYMENT_SERVICE_ID },
+        variables: { 
+          serviceId: PAYMENT_SERVICE_ID, 
+          branch: branchName // This satisfies the "required type String!" error
+        },
       }),
     });
 
@@ -62,7 +70,6 @@ export async function runPaymentPipeline() {
     throw err;
   }
 }
-
 
 
 export async function runPaymentPipelineWorking() {
