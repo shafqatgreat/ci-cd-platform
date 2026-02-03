@@ -1,6 +1,6 @@
 const RAILWAY_TOKEN = process.env.RAILWAY_TOKEN;
 const PAYMENT_SERVICE_ID = "cfbeca31-d2ae-475e-bd9d-42c42364d23d"; 
-const IMAGE_NAME = process.env.IMAGE_NAME || "ghcr.io/shafqatgreat/payment-service:latest";
+
 export async function runPaymentPipeline() {
   const updateMutation = `
     mutation ServiceInstanceUpdate($serviceId: String!, $image: String!) {
@@ -59,7 +59,6 @@ export async function runPaymentPipeline() {
     throw err;
   }
 }
-
 
 
 
