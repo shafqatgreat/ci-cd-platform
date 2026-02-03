@@ -1,7 +1,9 @@
 const RAILWAY_TOKEN = process.env.RAILWAY_TOKEN;
 const ENVIRONMENT_ID = process.env.RAILWAY_ENVIRONMENT_ID;
+const PROJECT_ID = process.env.RAILWAY_PROJECT_ID; // <--- Add this variable!
 const PAYMENT_SERVICE_ID = "cfbeca31-d2ae-475e-bd9d-42c42364d23d"; 
 const IMAGE_NAME = process.env.IMAGE_NAME || "ghcr.io/shafqatgreat/payment-service:latest";
+
 
 export async function runPaymentPipeline(payload) {
   const branchName = payload.branch || "main";
@@ -14,13 +16,14 @@ export async function runPaymentPipeline(payload) {
     }
   `;
 
-  // Added environmentId here
+  // Added projectId here
   const triggerMutation = `
-    mutation DeploymentTriggerCreate($serviceId: String!, $branch: String!, $environmentId: String!) {
+    mutation DeploymentTriggerCreate($serviceId: String!, $branch: String!, $environmentId: String!, $projectId: String!) {
       deploymentTriggerCreate(input: { 
         serviceId: $serviceId, 
         branch: $branch,
-        environmentId: $environmentId
+        environmentId: $environmentId,
+        projectId: $projectId
       }) {
         id
       }
@@ -28,7 +31,7 @@ export async function runPaymentPipeline(payload) {
   `;
 
   try {
-    // 1. Update Image
+    // 1. Update Image Metadata
     await fetch("https://backboard.railway.app/graphql/v2", {
       method: "POST",
       headers: {
@@ -41,9 +44,9 @@ export async function runPaymentPipeline(payload) {
       }),
     });
 
-    console.log(`✅ Metadata updated. Triggering in Env: ${ENVIRONMENT_ID}, Branch: ${branchName}`);
+    console.log(`✅ Metadata updated. Triggering for Project: ${PROJECT_ID}, Env: ${ENVIRONMENT_ID}`);
 
-    // 2. Trigger Deployment with ALL required fields
+    // 2. Trigger Deployment with the COMPLETE set of required IDs
     const response = await fetch("https://backboard.railway.app/graphql/v2", {
       method: "POST",
       headers: {
@@ -55,7 +58,8 @@ export async function runPaymentPipeline(payload) {
         variables: { 
           serviceId: PAYMENT_SERVICE_ID, 
           branch: branchName,
-          environmentId: ENVIRONMENT_ID // <--- Added this
+          environmentId: ENVIRONMENT_ID,
+          projectId: PROJECT_ID // <--- Added this
         },
       }),
     });
@@ -63,7 +67,7 @@ export async function runPaymentPipeline(payload) {
     const result = await response.json();
     if (result.errors) throw new Error(result.errors[0].message);
 
-    console.log("🚀 Railway: Deployment is officially live!");
+    console.log("🚀 Railway: Deployment triggered successfully! All IDs provided.");
     return result.data.deploymentTriggerCreate;
 
   } catch (err) {
@@ -71,7 +75,6 @@ export async function runPaymentPipeline(payload) {
     throw err;
   }
 }
-
 
 
 
