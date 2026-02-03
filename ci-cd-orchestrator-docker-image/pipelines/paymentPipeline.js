@@ -3,8 +3,103 @@ const ENVIRONMENT_ID = process.env.RAILWAY_ENVIRONMENT_ID;
 const PROJECT_ID = process.env.RAILWAY_PROJECT_ID; // <--- Add this variable!
 const PAYMENT_SERVICE_ID = "cfbeca31-d2ae-475e-bd9d-42c42364d23d"; 
 const IMAGE_NAME = process.env.IMAGE_NAME || "ghcr.io/shafqatgreat/payment-service:latest";
+export async function runPaymentPipeline() {
+  // Step 1: Update the Service Instance configuration with the new Docker image URL
+  const updateMutation = `
+    mutation ServiceInstanceUpdate($serviceId: String!, $image: String!) {
+      serviceInstanceUpdate(serviceId: $serviceId, input: {
+        source: { image: $image }
+      })
+    }
+  `;
 
-export async function runPaymentPipeline(payload) {
+  // Step 2: Force a redeploy of the instance using the updated configuration
+  const redeployMutation = `
+    mutation ServiceInstanceRedeploy($serviceId: String!, $environmentId: String!) {
+      serviceInstanceRedeploy(serviceId: $serviceId, environmentId: $environmentId)
+    }
+  `;
+
+  try {
+    console.log(`🚀 Orchestrator: Starting deployment for ${PAYMENT_SERVICE_ID}`);
+
+    // --- EXECUTE STEP 1: Update Metadata ---
+    const updateResponse = await fetch("https://backboard.railway.app/graphql/v2", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${RAILWAY_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        query: updateMutation.trim(),
+        variables: { 
+          serviceId: PAYMENT_SERVICE_ID, 
+          image: IMAGE_NAME 
+        },
+      }),
+    });
+
+    const updateResult = await updateResponse.json();
+    if (updateResult.errors) throw new Error(updateResult.errors[0].message);
+    
+    console.log("✅ Image metadata updated successfully.");
+
+    // --- EXECUTE STEP 2: Trigger Redeploy ---
+    console.log(`🔄 Triggering redeploy in environment: ${ENVIRONMENT_ID}...`);
+    
+    const redeployResponse = await fetch("https://backboard.railway.app/graphql/v2", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${RAILWAY_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        query: redeployMutation.trim(),
+        variables: { 
+          serviceId: PAYMENT_SERVICE_ID, 
+          environmentId: ENVIRONMENT_ID 
+        },
+      }),
+    });
+
+    const redeployResult = await redeployResponse.json();
+    if (redeployResult.errors) throw new Error(redeployResult.errors[0].message);
+
+    console.log("🚀 Railway: Redeploy signal sent! Check your dashboard for the spinning icons.");
+    return redeployResult.data.serviceInstanceRedeploy;
+
+  } catch (err) {
+    console.error("❌ Orchestrator Pipeline Failed:", err.message);
+    throw err;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export async function runPaymentPipelinenot(payload) {
   const branchName = payload.branch || "main";
 
   const updateMutation = `
