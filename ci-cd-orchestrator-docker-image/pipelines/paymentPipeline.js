@@ -1,10 +1,9 @@
 const RAILWAY_TOKEN = process.env.RAILWAY_TOKEN;
+const ENVIRONMENT_ID = process.env.RAILWAY_ENVIRONMENT_ID;
 const PAYMENT_SERVICE_ID = "cfbeca31-d2ae-475e-bd9d-42c42364d23d"; 
 const IMAGE_NAME = process.env.IMAGE_NAME || "ghcr.io/shafqatgreat/payment-service:latest";
 
-
 export async function runPaymentPipeline(payload) {
-  // Capture the branch from the payload, default to 'main'
   const branchName = payload.branch || "main";
 
   const updateMutation = `
@@ -15,12 +14,13 @@ export async function runPaymentPipeline(payload) {
     }
   `;
 
-  // Added the required 'branch' field here
+  // Added environmentId here
   const triggerMutation = `
-    mutation DeploymentTriggerCreate($serviceId: String!, $branch: String!) {
+    mutation DeploymentTriggerCreate($serviceId: String!, $branch: String!, $environmentId: String!) {
       deploymentTriggerCreate(input: { 
         serviceId: $serviceId, 
-        branch: $branch 
+        branch: $branch,
+        environmentId: $environmentId
       }) {
         id
       }
@@ -28,7 +28,7 @@ export async function runPaymentPipeline(payload) {
   `;
 
   try {
-    // 1. Update the metadata (Image URL)
+    // 1. Update Image
     await fetch("https://backboard.railway.app/graphql/v2", {
       method: "POST",
       headers: {
@@ -41,9 +41,9 @@ export async function runPaymentPipeline(payload) {
       }),
     });
 
-    console.log(`✅ Image metadata updated. Triggering deployment for branch: ${branchName}...`);
+    console.log(`✅ Metadata updated. Triggering in Env: ${ENVIRONMENT_ID}, Branch: ${branchName}`);
 
-    // 2. Trigger the actual deployment with the branch
+    // 2. Trigger Deployment with ALL required fields
     const response = await fetch("https://backboard.railway.app/graphql/v2", {
       method: "POST",
       headers: {
@@ -54,7 +54,8 @@ export async function runPaymentPipeline(payload) {
         query: triggerMutation.trim(),
         variables: { 
           serviceId: PAYMENT_SERVICE_ID, 
-          branch: branchName // This satisfies the "required type String!" error
+          branch: branchName,
+          environmentId: ENVIRONMENT_ID // <--- Added this
         },
       }),
     });
@@ -62,7 +63,7 @@ export async function runPaymentPipeline(payload) {
     const result = await response.json();
     if (result.errors) throw new Error(result.errors[0].message);
 
-    console.log("🚀 Railway: Deployment has been triggered successfully!");
+    console.log("🚀 Railway: Deployment is officially live!");
     return result.data.deploymentTriggerCreate;
 
   } catch (err) {
@@ -70,6 +71,8 @@ export async function runPaymentPipeline(payload) {
     throw err;
   }
 }
+
+
 
 
 export async function runPaymentPipelineWorking() {
