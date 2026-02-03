@@ -23,7 +23,8 @@ export async function runPaymentPipeline(payload) {
         serviceId: $serviceId, 
         branch: $branch,
         environmentId: $environmentId,
-        projectId: $projectId
+        projectId: $projectId,
+        provider: "DOCKER" // <--- This tells Railway to pull the image
       }) {
         id
       }
