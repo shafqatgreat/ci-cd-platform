@@ -19,7 +19,12 @@ export async function runPaymentPipeline() {
       serviceInstanceRedeploy(serviceId: $serviceId, environmentId: $environmentId)
     }
   `;
-
+// Step 3: Tell Railway to START the service (The "Wake Up" call)
+const deployMutation = `
+  mutation serviceInstanceDeploy($serviceId: String!, $environmentId: String!) {
+    serviceInstanceDeploy(serviceId: $serviceId, environmentId: $environmentId)
+  }
+`;
   try {
     console.log(`🚀 Orchestrator: Starting deployment for ${PAYMENT_SERVICE_ID}`);
 
@@ -54,7 +59,7 @@ export async function runPaymentPipeline() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        query: redeployMutation.trim(),
+        query: deployMutation.trim(),
         variables: { 
           serviceId: PAYMENT_SERVICE_ID, 
           environmentId: ENVIRONMENT_ID 
