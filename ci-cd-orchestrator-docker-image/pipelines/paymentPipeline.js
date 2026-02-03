@@ -4,7 +4,6 @@ const PROJECT_ID = process.env.RAILWAY_PROJECT_ID; // <--- Add this variable!
 const PAYMENT_SERVICE_ID = "cfbeca31-d2ae-475e-bd9d-42c42364d23d"; 
 const IMAGE_NAME = process.env.IMAGE_NAME || "ghcr.io/shafqatgreat/payment-service:latest";
 
-
 export async function runPaymentPipeline(payload) {
   const branchName = payload.branch || "main";
 
@@ -16,15 +15,15 @@ export async function runPaymentPipeline(payload) {
     }
   `;
 
-  // Added projectId here
+  // Added provider here
   const triggerMutation = `
-    mutation DeploymentTriggerCreate($serviceId: String!, $branch: String!, $environmentId: String!, $projectId: String!) {
+    mutation DeploymentTriggerCreate($serviceId: String!, $branch: String!, $environmentId: String!, $projectId: String!, $provider: String!) {
       deploymentTriggerCreate(input: { 
         serviceId: $serviceId, 
         branch: $branch,
         environmentId: $environmentId,
         projectId: $projectId,
-        provider: "DOCKER" // <--- This tells Railway to pull the image
+        provider: $provider
       }) {
         id
       }
@@ -45,9 +44,9 @@ export async function runPaymentPipeline(payload) {
       }),
     });
 
-    console.log(`✅ Metadata updated. Triggering for Project: ${PROJECT_ID}, Env: ${ENVIRONMENT_ID}`);
+    console.log(`✅ Metadata updated. Triggering for Project: ${PROJECT_ID} via DOCKER provider`);
 
-    // 2. Trigger Deployment with the COMPLETE set of required IDs
+    // 2. Trigger Deployment with Provider
     const response = await fetch("https://backboard.railway.app/graphql/v2", {
       method: "POST",
       headers: {
@@ -60,7 +59,8 @@ export async function runPaymentPipeline(payload) {
           serviceId: PAYMENT_SERVICE_ID, 
           branch: branchName,
           environmentId: ENVIRONMENT_ID,
-          projectId: PROJECT_ID // <--- Added this
+          projectId: PROJECT_ID,
+          provider: "DOCKER" // <--- This tells Railway to pull the image
         },
       }),
     });
@@ -68,7 +68,7 @@ export async function runPaymentPipeline(payload) {
     const result = await response.json();
     if (result.errors) throw new Error(result.errors[0].message);
 
-    console.log("🚀 Railway: Deployment triggered successfully! All IDs provided.");
+    console.log("🚀 Railway: Deployment triggered successfully!");
     return result.data.deploymentTriggerCreate;
 
   } catch (err) {
@@ -76,6 +76,26 @@ export async function runPaymentPipeline(payload) {
     throw err;
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
